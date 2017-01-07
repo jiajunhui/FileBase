@@ -10,6 +10,7 @@ import com.kk.taurus.filebase.engine.FileEngine;
 import com.kk.taurus.filebase.engine.StorageEngine;
 import com.kk.taurus.filebase.filefilter.FileNameFilter;
 import com.kk.taurus.filebase.tools.BytesTool;
+import com.kk.taurus.filebase.tools.MD5Utils;
 
 import java.io.File;
 import java.util.Comparator;
@@ -59,6 +60,19 @@ public class MainActivity extends AppCompatActivity {
         if(unZipResult){
             boolean copyResult = FileEngine.copy(new File(testFileBase.getAssetsDir(),"ikanweb"),testFileBase.getTempDir());
             System.out.println("copyResult : " + copyResult);
+        }
+
+        System.out.println("md5 : " + MD5Utils.md5(new File(testFileBase.getAssetsDir(),"ikanweb.zip")));
+
+        String[] dir1 = AssetsEngine.listAssets(this,"dir1");
+        String[] dir1_dir2 = AssetsEngine.listAssets(this,"dir1/dir2");
+
+        for(String d : dir1){
+            System.out.println("list_assets : dir1 = " + d);
+        }
+
+        for(String d : dir1_dir2){
+            System.out.println("list_assets : dir1/dir2 = " + d);
         }
     }
 }

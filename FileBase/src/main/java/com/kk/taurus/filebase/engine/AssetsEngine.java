@@ -49,6 +49,21 @@ public class AssetsEngine {
         return null;
     }
 
+    /**
+     * list assets files or dirs Under the specified path
+     * @param context
+     * @param dirName
+     * @return
+     */
+    public static String[] listAssets(Context context, String dirName){
+        try {
+            return context.getAssets().list(dirName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static String getAssetsStringContent(Context context,String[] dirLevel, String fileName){
         return getAssetsStringContent(context, getAssetsFilePath(dirLevel, fileName));
     }
