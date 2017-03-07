@@ -104,13 +104,13 @@ public class FileEngine {
 
     /**
      * copy directory
-     * @param sourceDir
-     * @param destinationDir
+     * @param source
+     * @param destination
      * @return
      */
-    public static boolean copy(File sourceDir, File destinationDir){
+    public static boolean copy(File source, File destination){
         try {
-            CopyTool.copy(sourceDir, destinationDir);
+            CopyTool.copy(source, destination);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
