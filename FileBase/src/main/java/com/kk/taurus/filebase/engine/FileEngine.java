@@ -90,15 +90,19 @@ public class FileEngine {
             file.delete();
             return;
         }
+        deleteDirs(file);
+        file.delete();
+    }
+
+    private static void deleteDirs(File file){
         File[] files = file.listFiles();
-        if(files==null || (files!=null && files.length<=0))
+        if(files==null)
             return;
         for(File f : files){
             if(f.isDirectory()){
-                deleteFile(f);
-            }else{
-                f.delete();
+                deleteDirs(f);
             }
+            f.delete();
         }
     }
 

@@ -34,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
         testFileBase.getTempDir();
         testFileBase.getLogDir();
 
+//        FileEngine.deleteFile(testFileBase.getAssetsDir());
+
         String content = AssetsEngine.getAssetsStringContent(this,"test.txt");
         System.out.println("assets_content  : " + content);
 
