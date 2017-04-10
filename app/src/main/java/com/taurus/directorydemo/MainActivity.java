@@ -7,6 +7,7 @@ import android.os.Bundle;
 import com.kk.taurus.filebase.comparators.NameComparator;
 import com.kk.taurus.filebase.engine.AssetsEngine;
 import com.kk.taurus.filebase.engine.FileEngine;
+import com.kk.taurus.filebase.engine.FileStore;
 import com.kk.taurus.filebase.engine.StorageEngine;
 import com.kk.taurus.filebase.filefilter.FileNameFilter;
 import com.kk.taurus.filebase.tools.BytesTool;
@@ -35,6 +36,11 @@ public class MainActivity extends AppCompatActivity {
         testFileBase.getLogDir();
 
 //        FileEngine.deleteFile(testFileBase.getAssetsDir());
+
+//        FileStore.save(testFileBase.getTempDir(),"sdbizdnvozidnv","15010218761-1234567890\nsdivnsidvnosdnmv");
+
+        String data = FileStore.get(testFileBase.getTempDir(),"sdbizdnvozidnv");
+        System.out.println("store_data  : " + data);
 
         String content = AssetsEngine.getAssetsStringContent(this,"test.txt");
         System.out.println("assets_content  : " + content);
