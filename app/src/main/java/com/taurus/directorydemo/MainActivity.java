@@ -1,6 +1,7 @@
 package com.taurus.directorydemo;
 
 import android.os.Environment;
+import android.os.storage.StorageVolume;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -9,6 +10,7 @@ import com.kk.taurus.filebase.engine.AssetsEngine;
 import com.kk.taurus.filebase.engine.FileEngine;
 import com.kk.taurus.filebase.engine.FileStore;
 import com.kk.taurus.filebase.engine.StorageEngine;
+import com.kk.taurus.filebase.entity.Storage;
 import com.kk.taurus.filebase.filefilter.FileNameFilter;
 import com.kk.taurus.filebase.tools.BytesTool;
 import com.kk.taurus.filebase.tools.MD5Utils;
@@ -24,10 +26,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        long totalSize = StorageEngine.storageTotalSize(this);
-        long remainSize = StorageEngine.storageRemainSize(this);
+        StorageEngine.getStorageVolumes(this);
+        StorageEngine.printMethod(this);
 
-        System.out.println("storage_info : total = " + BytesTool.formatBytes(totalSize,2) + " remain = " + BytesTool.formatBytes(remainSize,3));
+        List<Storage> storages = StorageEngine.getStorages(this);
+        for(Storage storage : storages){
+            System.out.println("storage_info : path = " + storage.getPath() + "\t"
+                    + "totalSize = " + BytesTool.formatBytes(storage.getTotalSize()) + "\t"
+                    + "availableSize = " + BytesTool.formatBytes(storage.getAvailableSize()) + "\t"
+                    + "lowBytes = " + BytesTool.formatBytes(storage.getLowBytesLimit()) + "\t"
+                    + "fullBytes = " + BytesTool.formatBytes(storage.getFullBytesLimit()) + "\t"
+                    + "isUSB = " + storage.isUsbMassStorage());
+        }
 
         TestFileBase testFileBase = new TestFileBase(this);
         testFileBase.getImageDir();

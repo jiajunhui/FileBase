@@ -20,12 +20,20 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
+import android.os.UserHandle;
 import android.os.storage.StorageManager;
+import android.os.storage.StorageVolume;
+import android.text.TextUtils;
+
+import com.kk.taurus.filebase.entity.Storage;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +45,117 @@ public class StorageEngine {
 
     private static SDCardInfo SDCARD_INTERNAL = null;
     private static SDCardInfo SDCARD_EXTERNAL = null;
+
+    public static void printMethod(Context context){
+        try {
+            StorageManager storageManager = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
+            Method[] methods = StorageManager.class.getMethods();
+            for(Method method: methods){
+                System.out.println("storage_method : methodName = " + method.getName()
+                        + " methodParams = " + getParams(method.getParameterTypes())
+                        + " returnType = " + method.getReturnType().getSimpleName());
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private static String getParams(Class<?>[] cls){
+        StringBuilder sb = new StringBuilder();
+        for(Class clz : cls){
+            sb.append(clz.getSimpleName()).append(",");
+        }
+        return sb.toString();
+    }
+
+    public static void getStorageVolumes(Context context){
+        try {
+            StorageManager storageManager = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
+            Method method = StorageManager.class.getMethod("getVolumeList");
+            StorageVolume[] storageVolumes = (StorageVolume[]) method.invoke(storageManager);
+            System.out.println("storageVolumes : " + storageVolumes.length);
+            Method[] methods = storageVolumes[0].getClass().getMethods();
+            for(Method m : methods){
+                System.out.println("storageVolumes : methodName = " + m.getName() + " methodParams = " + getParams(m.getParameterTypes()) + " returnType = " + m.getReturnType().getSimpleName());
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public static Storage getStorageByPath(Context context, String path){
+        Storage storage = new Storage();
+        storage.setPath(path);
+        StorageManager storageManager = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
+        long[] sizes = getStorageInfo(path);
+        storage.setTotalSize(sizes[0]);
+        storage.setAvailableSize(sizes[1]);
+        try {
+            Method lowBytesMethod = StorageManager.class.getMethod("getStorageLowBytes",File.class);
+            Method fullBytesMethod = StorageManager.class.getMethod("getStorageFullBytes",File.class);
+
+            File file = new File(path);
+            long lowBytes = (long) lowBytesMethod.invoke(storageManager,file);
+            storage.setLowBytesLimit(lowBytes);
+            long fullBytes = (long) fullBytesMethod.invoke(storageManager,file);
+            storage.setFullBytesLimit(fullBytes);
+
+            Method method = StorageManager.class.getMethod("getVolumeList");
+            StorageVolume[] storageVolumes = (StorageVolume[]) method.invoke(storageManager);
+            System.out.println("storageVolumes : " + storageVolumes.length);
+            Method getDescriptionMethod = storageVolumes[3].getClass().getMethod("getDescription",Context.class);
+            Method allowMassStorageMethod = storageVolumes[3].getClass().getMethod("allowMassStorage");
+            Method isRemovableMethod = storageVolumes[3].getClass().getMethod("isRemovable");
+            getDescriptionMethod.setAccessible(true);
+            allowMassStorageMethod.setAccessible(true);
+            isRemovableMethod.setAccessible(true);
+            String description = (String) getDescriptionMethod.invoke(storageVolumes[3],context);
+            boolean allowMassStorage = (boolean) allowMassStorageMethod.invoke(storageVolumes[0]);
+            boolean isRemovable = (boolean) isRemovableMethod.invoke(storageVolumes[0]);
+            if(allowMassStorage && isRemovable){
+                storage.setUsbMassStorage(true);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return  storage;
+    }
+
+    public static List<Storage> getStorages(Context context){
+        List<Storage> storageList = new ArrayList<>();
+        List<String> storagePaths = getStorageInfo(context);
+        for(String path : storagePaths){
+            storageList.add(getStorageByPath(context,path));
+        }
+        return storageList;
+    }
+
+    public static List<String> getStorageInfo(Context context){
+        StorageManager storageManager = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
+        List<String> result = new ArrayList<>();
+        try {
+            Class<?>[] paramClasses = {};
+            Method getVolumePathsMethod = StorageManager.class.getMethod("getVolumePaths", paramClasses);
+            getVolumePathsMethod.setAccessible(true);
+            Object[] params = {};
+            Object invoke = getVolumePathsMethod.invoke(storageManager, params);
+            for (int i = 0; i < ((String[])invoke).length; i++) {
+                String path = ((String[])invoke)[i];
+                if(checkSDCardMount14(context,path)){
+                    result.add(path);
+                }
+            }
+        } catch (NoSuchMethodException e1) {
+            e1.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
 
     private static void checkSDCardInfoBelow14() {
         BufferedReader bufferedReader = null;
@@ -166,6 +285,24 @@ public class StorageEngine {
             return nTotalBlocks * nBlocSize;
         }
         return 0;
+    }
+
+    public static long[] getStorageInfo(String path){
+        long[] result = new long[2];
+        try{
+            android.os.StatFs statfs = new android.os.StatFs(path);
+            if (statfs != null) {
+                long nTotalBlocks = getBlockCount(statfs);
+                long nBlocSize = getBlockSize(statfs);
+                result[0] =  nTotalBlocks * nBlocSize;
+
+                long nAvailableBlock = getAvailableBlocksCount(statfs);
+                result[1] = nAvailableBlock*nBlocSize;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return result;
     }
 
     /**
