@@ -1,9 +1,9 @@
 package com.taurus.directorydemo;
 
 import android.os.Environment;
-import android.os.storage.StorageVolume;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import com.kk.taurus.filebase.comparators.NameComparator;
 import com.kk.taurus.filebase.engine.AssetsEngine;
@@ -21,23 +21,25 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private TextView mTvInfo;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        StorageEngine.getStorageVolumes(this);
-        StorageEngine.printMethod(this);
+        mTvInfo = (TextView) findViewById(R.id.tv_info);
 
-        List<Storage> storages = StorageEngine.getStorages(this);
+        StorageEngine.printStorageVolumeMethods(this);
+
+        StringBuilder sb = new StringBuilder();
+        List<Storage> storages = StorageEngine.getStorageList(this);
         for(Storage storage : storages){
-            System.out.println("storage_info : path = " + storage.getPath() + "\t"
-                    + "totalSize = " + BytesTool.formatBytes(storage.getTotalSize()) + "\t"
-                    + "availableSize = " + BytesTool.formatBytes(storage.getAvailableSize()) + "\t"
-                    + "lowBytes = " + BytesTool.formatBytes(storage.getLowBytesLimit()) + "\t"
-                    + "fullBytes = " + BytesTool.formatBytes(storage.getFullBytesLimit()) + "\t"
-                    + "isUSB = " + storage.isUsbMassStorage());
+            sb.append(storage.getDescription()).append(" : ")
+                    .append(" 总空间 : ").append(BytesTool.formatBytes(storage.getTotalSize()))
+                    .append(" 可用空间 : ").append(BytesTool.formatBytes(storage.getAvailableSize())).append("\n");
         }
+        mTvInfo.setText(sb.toString());
 
         TestFileBase testFileBase = new TestFileBase(this);
         testFileBase.getImageDir();

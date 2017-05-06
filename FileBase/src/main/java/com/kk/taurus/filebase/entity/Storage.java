@@ -28,7 +28,11 @@ public class Storage implements Serializable {
     private long availableSize;
     private long lowBytesLimit;
     private long fullBytesLimit;
-    private boolean isUsbMassStorage;
+    private String description;
+    private boolean isRemovableStorage;
+    private boolean isAllowMassStorage;
+    private boolean isEmulated;
+    private boolean isPrimary;
 
     public String getPath() {
         return path;
@@ -70,11 +74,43 @@ public class Storage implements Serializable {
         this.fullBytesLimit = fullBytesLimit;
     }
 
-    public boolean isUsbMassStorage() {
-        return isUsbMassStorage;
+    public String getDescription() {
+        return description;
     }
 
-    public void setUsbMassStorage(boolean usbMassStorage) {
-        isUsbMassStorage = usbMassStorage;
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public boolean isRemovableStorage() {
+        return isRemovableStorage;
+    }
+
+    public void setRemovableStorage(boolean removableStorage) {
+        isRemovableStorage = removableStorage;
+    }
+
+    public boolean isAllowMassStorage() {
+        return isAllowMassStorage;
+    }
+
+    public void setAllowMassStorage(boolean allowMassStorage) {
+        isAllowMassStorage = allowMassStorage;
+    }
+
+    public boolean isEmulated() {
+        return isEmulated;
+    }
+
+    public void setEmulated(boolean emulated) {
+        isEmulated = emulated;
+    }
+
+    public boolean isPrimary() {
+        return isPrimary;
+    }
+
+    public void setPrimary(boolean primary) {
+        isPrimary = primary;
     }
 }

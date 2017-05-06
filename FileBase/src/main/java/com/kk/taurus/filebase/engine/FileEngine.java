@@ -51,11 +51,14 @@ public class FileEngine {
      */
     public static List<File> listFiles(File dir, FileFilter fileFilter, Comparator[] comparators){
         List<File> files = new ArrayList<>();
+        if(fileFilter==null){
+            fileFilter = new NullFilter();
+        }
         if(dir!=null && dir.isDirectory()){
-            if(fileFilter==null){
-                fileFilter = new NullFilter();
+            File[] fileArray = dir.listFiles(fileFilter);
+            if(fileArray!=null){
+                files = new ArrayList<>(Arrays.asList(fileArray));
             }
-            files = new ArrayList<>(Arrays.asList(dir.listFiles(fileFilter)));
         }
         Log.d(TAG,"files num : " + files.size());
         sortByComparators(files,comparators);
