@@ -16,6 +16,7 @@
 
 package com.kk.taurus.filebase.engine;
 
+import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.util.Log;
 import com.kk.taurus.filebase.filefilter.NullFilter;
@@ -196,6 +197,29 @@ public class FileEngine {
             return path.substring(index,path.length());
         }
         return path;
+    }
+
+    /**
+     * bitmap stream to file
+     * @param bitmap
+     * @param dir
+     * @param fileName
+     * @return
+     */
+    public static String bitmapToFile(Bitmap bitmap, File dir, String fileName){
+        File f = new File(dir,fileName);
+        if (f.exists())
+            f.delete();
+        FileOutputStream fOut;
+        try {
+            fOut = new FileOutputStream(f);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+            fOut.flush();
+            fOut.close();
+        } catch (Exception e) {
+            return null;
+        }
+        return f.getAbsolutePath();
     }
 
 }
