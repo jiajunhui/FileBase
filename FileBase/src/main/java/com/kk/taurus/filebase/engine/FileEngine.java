@@ -229,6 +229,22 @@ public class FileEngine {
         return f.getAbsolutePath();
     }
 
+    public static String bitmapToFile(Bitmap bitmap, File dir, String fileName, Bitmap.CompressFormat format){
+        File f = new File(dir,fileName);
+        if (f.exists())
+            f.delete();
+        FileOutputStream fOut;
+        try {
+            fOut = new FileOutputStream(f);
+            bitmap.compress(format, 100, fOut);
+            fOut.flush();
+            fOut.close();
+        } catch (Exception e) {
+            return null;
+        }
+        return f.getAbsolutePath();
+    }
+
     /**
      * from apk file path get apk icon.
      * @param context
