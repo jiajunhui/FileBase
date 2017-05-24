@@ -16,7 +16,12 @@
 
 package com.kk.taurus.filebase.engine;
 
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.Log;
 import com.kk.taurus.filebase.filefilter.NullFilter;
@@ -220,6 +225,68 @@ public class FileEngine {
             return null;
         }
         return f.getAbsolutePath();
+    }
+
+    /**
+     * from apk file path get apk icon.
+     * @param context
+     * @param apkPath
+     * @return
+     */
+    public static Drawable getApkIcon(Context context, String apkPath) {
+        PackageManager pm = context.getPackageManager();
+        PackageInfo info = pm.getPackageArchiveInfo(apkPath,
+                PackageManager.GET_ACTIVITIES);
+        if (info != null) {
+            ApplicationInfo appInfo = info.applicationInfo;
+            appInfo.sourceDir = apkPath;
+            appInfo.publicSourceDir = apkPath;
+            try {
+                return appInfo.loadIcon(pm);
+            } catch (OutOfMemoryError e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * from file name get file extension name.
+     * @param filename
+     * @return
+     */
+    public static String getExtFromFilename(String filename) {
+        int dotPosition = filename.lastIndexOf('.');
+        if (dotPosition != -1) {
+            return filename.substring(dotPosition + 1, filename.length());
+        }
+        return "";
+    }
+
+    /**
+     * get file name (not include extension name).
+     * @param filename
+     * @return
+     */
+    public static String getNameFromFilename(String filename) {
+        int dotPosition = filename.lastIndexOf('.');
+        if (dotPosition != -1) {
+            return filename.substring(0, dotPosition);
+        }
+        return "";
+    }
+
+    /**
+     * get file name from file path.
+     * @param filepath
+     * @return
+     */
+    public static String getNameFromFilepath(String filepath) {
+        int pos = filepath.lastIndexOf('/');
+        if (pos != -1) {
+            return filepath.substring(pos + 1);
+        }
+        return "";
     }
 
 }
