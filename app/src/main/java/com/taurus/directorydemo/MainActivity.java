@@ -16,6 +16,7 @@ import com.kk.taurus.filebase.tools.BytesTool;
 import com.kk.taurus.filebase.tools.MD5Utils;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
         mTvInfo = (TextView) findViewById(R.id.tv_info);
 
-        StorageEngine.printStorageVolumeMethods(this);
+//        StorageEngine.printStorageVolumeMethods(this);
 
         StringBuilder sb = new StringBuilder();
         List<Storage> storages = StorageEngine.getStorageList(this);
@@ -47,7 +48,25 @@ public class MainActivity extends AppCompatActivity {
         testFileBase.getTempDir();
         testFileBase.getLogDir();
 
-//        FileEngine.deleteFile(testFileBase.getAssetsDir());
+//        int failNumber = FileEngine.deleteFile(testFileBase.getTempDir());
+//        int failNumber = 0;
+//
+//        List<File> deleteList = new ArrayList<>();
+//        deleteList.add(testFileBase.getAssetsDir());
+//        FileEngine.deleteFiles(deleteList, new FileEngine.OnDeleteListener() {
+//            @Override
+//            public void onDeleteProgress(int progress, int max) {
+//                System.out.println("delete_info  : progress = " + progress + " max = " + max);
+//            }
+//            @Override
+//            public void onDeleteFinish(int failNumber) {
+//                System.out.println("delete_info  : failNumber = " + failNumber);
+//            }
+//        });
+//
+//        if(failNumber!=1000){
+//            return;
+//        }
 
 //        FileStore.save(testFileBase.getTempDir(),"sdbizdnvozidnv","15010218761-1234567890\nsdivnsidvnosdnmv");
 

@@ -20,9 +20,11 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.PixelFormat;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.Log;
@@ -39,6 +41,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Stack;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -93,28 +96,78 @@ public class FileEngine {
     /**
      * delete file or directory.
      * @param file
+     * @return delete failure number of files or directory.
      */
-    public static void deleteFile(File file){
+    public static int deleteFile(File file){
         if(file==null)
-            return;
+            return 0;
         if(!file.isDirectory()){
-            file.delete();
-            return;
+            boolean result = file.delete();
+            return result?0:1;
         }
-        deleteDirs(file);
-        file.delete();
+        return deleteDir(file);
     }
 
-    private static void deleteDirs(File file){
-        File[] files = file.listFiles();
-        if(files==null)
-            return;
-        for(File f : files){
+    public interface OnDeleteListener{
+        void onDeleteProgress(int progress, int max);
+        void onDeleteFinish(int failNumber);
+    }
+
+    public static void deleteFiles(List<File> targets, OnDeleteListener onDeleteListener){
+        Stack<File> tempStack = new Stack<>();
+        Stack<File> taskStack = new Stack<>();
+        for(File f : targets){
             if(f.isDirectory()){
-                deleteDirs(f);
+                tempStack.push(f);
             }
-            f.delete();
+            taskStack.push(f);
         }
+        while (!tempStack.isEmpty()){
+            File dir = tempStack.pop();
+            File[] files = dir.listFiles();
+            for(File file : files){
+                if(file.isDirectory()){
+                    tempStack.push(file);
+                }
+                taskStack.push(file);
+            }
+        }
+        int max = taskStack.size();
+        int failNumber = 0;
+        while (!taskStack.isEmpty()){
+            File deleteTarget = taskStack.pop();
+            failNumber += (deleteTarget.delete()?0:1);
+            if(onDeleteListener!=null){
+                int progress = max - taskStack.size();
+                onDeleteListener.onDeleteProgress(progress,max);
+            }
+        }
+        if(onDeleteListener!=null){
+            onDeleteListener.onDeleteFinish(failNumber);
+        }
+    }
+
+    private static int deleteDir(File root){
+        Stack<File> tempStack = new Stack<>();
+        Stack<File> taskStack = new Stack<>();
+        tempStack.push(root);
+        taskStack.push(root);
+        while (!tempStack.isEmpty()){
+            File dir = tempStack.pop();
+            File[] files = dir.listFiles();
+            for(File file : files){
+                if(file.isDirectory()){
+                    tempStack.push(file);
+                }
+                taskStack.push(file);
+            }
+        }
+        int failNumber = 0;
+        while (!taskStack.isEmpty()){
+            File deleteTarget = taskStack.pop();
+            failNumber += (deleteTarget.delete()?0:1);
+        }
+        return failNumber;
     }
 
     /**
@@ -229,6 +282,14 @@ public class FileEngine {
         return f.getAbsolutePath();
     }
 
+    /**
+     * you can set bitmap compress format to save file.
+     * @param bitmap
+     * @param dir
+     * @param fileName
+     * @param format
+     * @return
+     */
     public static String bitmapToFile(Bitmap bitmap, File dir, String fileName, Bitmap.CompressFormat format){
         File f = new File(dir,fileName);
         if (f.exists())
@@ -298,6 +359,18 @@ public class FileEngine {
         drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
         drawable.draw(canvas);
         return bitmap;
+    }
+
+    /**
+     * bitmap to drawable.
+     * Create drawable from a bitmap, setting initial target density based on
+     * the display metrics of the resources.
+     * @param resources
+     * @param bitmap
+     * @return
+     */
+    public static Drawable bitmapToDrawable(Resources resources, Bitmap bitmap){
+        return new BitmapDrawable(resources, bitmap);
     }
 
     /**
