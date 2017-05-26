@@ -113,7 +113,7 @@ public class FileEngine {
         void onDeleteFinish(int failNumber);
     }
 
-    public static void deleteFiles(List<File> targets, OnDeleteListener onDeleteListener){
+    public static int deleteFiles(List<File> targets, OnDeleteListener onDeleteListener){
         Stack<File> tempStack = new Stack<>();
         Stack<File> taskStack = new Stack<>();
         for(File f : targets){
@@ -145,6 +145,7 @@ public class FileEngine {
         if(onDeleteListener!=null){
             onDeleteListener.onDeleteFinish(failNumber);
         }
+        return failNumber;
     }
 
     private static int deleteDir(File root){
