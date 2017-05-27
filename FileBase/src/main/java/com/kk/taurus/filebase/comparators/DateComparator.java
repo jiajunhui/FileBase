@@ -36,10 +36,9 @@ public class DateComparator implements Comparator<File> {
 
     @Override
     public int compare(File o1, File o2) {
-        long t_o1 = o1.lastModified();
-        long t_o2 = o2.lastModified();
-        if(t_o1==t_o2)
-            return 0;
-        return t_o1>t_o2?-1:1;
+        Long t_o1 = o1.lastModified();
+        Long t_o2 = o2.lastModified();
+        int result = t_o1.compareTo(t_o2);
+        return asc?result:-result;
     }
 }
