@@ -185,7 +185,7 @@ public class AssetsEngine {
         InputStream inputStream = AssetsEngine.getAssets(context, fileName);
         if(inputStream!=null){
             try {
-                FileEngine.unZip(inputStream,destinationDir.getAbsolutePath(),rewrite);
+                ZipEngine.unZip(inputStream,destinationDir,rewrite);
                 return true;
             } catch (Exception e) {
                 e.printStackTrace();
