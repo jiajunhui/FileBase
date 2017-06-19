@@ -1,62 +1,20 @@
 package com.kk.taurus.filebase.engine;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Stack;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 /**
  * Created by Taurus on 2017/6/6.
  */
 
 public class ZipEngine {
-
-    public static void packageZip(List<File> files, File destinationDir, String zipName) throws FileNotFoundException {
-        ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(new File(destinationDir,zipName)));
-        List<ZipItem> zipItems = new ArrayList<>();
-        if(!destinationDir.exists()){
-            destinationDir.mkdirs();
-        }
-        for(File file : files){
-            if(file.isFile()){
-                zipItems.add(new ZipItem(new ZipEntry(file.getName()),file));
-            }else{
-
-            }
-        }
-    }
-
-    private static List<PrepareZipItem> patchFiles(List<PrepareZipItem> container, PrepareZipItem prepareZipItem){
-
-        return null;
-    }
-
-    private static class PrepareZipItem{
-        public String path;
-        public File file;
-    }
-
-    private static class ZipItem{
-        public ZipEntry zipEntry;
-        public File file;
-
-        public ZipItem(ZipEntry zipEntry, File file) {
-            this.zipEntry = zipEntry;
-            this.file = file;
-        }
-    }
 
     public static void unZip(File zipSource, File destination, boolean isReWrite) throws IOException {
         ZipFile zipFile = new ZipFile(zipSource);
